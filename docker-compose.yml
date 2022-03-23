@@ -1,0 +1,17 @@
+version: '2.4'
+services:
+  bytecodedl:
+    image: wuxxxxx/bytecodedl:1.0.0
+    restart: always
+    volumes:
+        - ./:/bytecodedl
+  neo:
+    image: neo4j:4.4.4-community
+    restart: always
+    ports:
+      - "0.0.0.0:7474:7474"
+      - "0.0.0.0:7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/bytecodedl
+    volumes:
+        - ./:/bytecodedl
