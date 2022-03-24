@@ -1,0 +1,99 @@
+.type Insn <: symbol
+.type Var <: symbol
+.type Heap <: symbol
+.type Field <: symbol
+.type Method <: symbol
+.type Class <: symbol
+
+// load data from facts
+// class
+
+.decl ClassModifier(mod:symbol, class:Class)
+.input ClassModifier
+
+.decl ClassType(class:Class)
+.input ClassType
+
+.decl InterfaceType(interface:Class)
+.input InterfaceType
+
+.decl ApplicationClass(class:Class)
+.input ApplicationClass
+
+.decl DirectSuperclass(child:Class, parent:Class)
+.input DirectSuperclass
+
+.decl DirectSuperinterface(child:Class, parent:Class)
+.input DirectSuperinterface
+
+// method 
+
+.decl MethodInfo(method:Method, simplename:symbol, param:symbol, class:Class, return:Class, jvmDescriptor:symbol, arity:number)
+.input MethodInfo(IO="file", filename="Method.facts", delimiter="\t")
+
+.decl MethodModifier(mod:symbol, method:Method)
+.input MethodModifier(filename="Method-Modifier.facts")
+
+.decl ThisVar(method:Method, this:Var)
+.input ThisVar
+
+.decl FormalParam(n:number, method:Method, param:Var)
+.input FormalParam
+
+.decl Return(insn:Insn, index:number, var:Var, method:Method)
+.input Return
+
+.decl VirtualMethodInvocation(insn:Insn, index:number, callee:Method, receiver:Var, caller:Method)
+.input VirtualMethodInvocation
+
+.decl StaticMethodInvocation(insn:Insn, index:number, callee:Method, caller:Method)
+.input StaticMethodInvocation
+
+.decl SpecialMethodInvocation(insn:Insn, index:number, callee:Method, receiver:Var, caller:Method)
+.input SpecialMethodInvocation
+
+.decl ActualParam(n:number, insn:Insn, var:Var)
+.input ActualParam
+
+.decl AssignReturnValue(insn:Insn, var:Var)
+.input AssignReturnValue
+
+// Field
+
+.decl FieldInfo(field:Field, declaringType:Class, simplename:symbol, type:Class)
+.input FieldInfo(IO="file", filename="Field.facts", delimiter="\t")
+
+.decl FieldModifier(modifier:symbol, field:Field)
+.input FieldModifier(filename="Field-Modifier.facts")
+
+.decl LoadInstanceField(insn:Insn, index:number, var:Var, base:Var, field:Field, inMethod:Method)
+.input LoadInstanceField
+
+.decl StoreInstanceField(insn:Insn, index:number, var:Var, base:Var, field:Field, inMethod:Method)
+.input StoreInstanceField
+
+// Array
+.decl LoadArrayIndex(insn:Insn, index:number, to:Var, array:Var, inMethod:Method)
+.input LoadArrayIndex
+
+.decl StoreArrayIndex(insn:Insn, index:number, from:Var, array:Var, inMethod:Method)
+.input StoreArrayIndex
+
+.decl ComponentType(arrayType:Class, componentType:Class)
+.input ComponentType
+
+// others
+.decl VarType(var:Var, class:Class)
+.input VarType(IO="file", filename="Var-Type.facts", delimiter="\t")
+
+.decl AssignLocal(insn:Insn, index:number, from:Var, to:Var, inMethod: Method)
+.input AssignLocal
+
+.decl AssignCast(insn:Insn, index:number, from:Var, to:Var, type:Class, inMethod:Method)
+.input AssignCast(filename="AssignCast.facts")
+
+.decl AssignHeapAllocation(insn:Insn, index:number, heap:Heap, var:Var, inMethod:Method, linenumber:number)
+.input AssignHeapAllocation
+
+.decl NormalHeap(value:Heap, class:Class)
+.input NormalHeap

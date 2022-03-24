@@ -1,4 +1,5 @@
 # ByteCodeDL
+
 A declarative static analysis tool for jvm bytecode based Datalog like CodeQL
 
 ## Why ByteCodeDL
