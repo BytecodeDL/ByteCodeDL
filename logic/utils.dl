@@ -1,0 +1,34 @@
+//self define relation
+
+// Utils
+.decl SubClass(subclass:Class, class:Class)
+.decl SubEqClass(subeqclass:Class, class:Class)
+
+SubEqClass(subclass, class) :- SubClass(subclass, class).
+SubEqClass(class, class) :- ClassType(class).
+
+SubClass(subclass, class) :- DirectSuperclass(subclass, class).
+SubClass(subclass, class) :- DirectSuperinterface(subclass, class).
+SubClass(subclass, class) :- 
+    (
+        DirectSuperclass(subclass, tmp);
+        DirectSuperinterface(subclass, tmp)
+    ),
+    SubClass(tmp, class).
+
+.decl AbstractType(type:Class)
+
+AbstractType(type) :- 
+    ClassModifier("abstract", type).
+
+.decl Dispatch(simplename:symbol, descriptor:symbol, class:Class, method:Method)
+
+Dispatch(simplename, descriptor, class, method) :-
+    MethodInfo(method, simplename, _, class, _, descriptor, _),
+    !MethodModifier("abstract", method).
+
+Dispatch(simplename, descriptor, class, method) :-
+    !MethodInfo(_, simplename, _, class, _, descriptor, _),
+    DirectSuperclass(class, superclass),
+    Dispatch(simplename, descriptor, superclass, method),
+    !MethodModifier("abstract", method).
