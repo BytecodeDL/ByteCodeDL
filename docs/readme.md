@@ -7,3 +7,5 @@
 
 1. [souffle.md](souffle.md)
 2. [relation.md](relation.md)
+3. [utils.md](utils.md)
+4. [query.md](query.md)
