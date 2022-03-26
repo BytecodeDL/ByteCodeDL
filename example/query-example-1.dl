@@ -1,0 +1,10 @@
+#include "inputDeclaration.dl"
+
+.decl QueryResult(class:Class, method:Method)
+.output QueryResult
+
+QueryResult(class, method) :- 
+    MethodInfo(method, simplename, param, class, _, _, arity),
+    //simplename = "<init>",
+    contains("[]", param),
+    arity = 1.

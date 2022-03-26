@@ -3,6 +3,7 @@ services:
   bytecodedl:
     image: wuxxxxx/bytecodedl:1.0.0
     restart: always
+    command: sleep infinity
     volumes:
         - ./:/bytecodedl
   neo:

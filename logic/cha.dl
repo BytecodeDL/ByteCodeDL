@@ -1,0 +1,32 @@
+
+.decl EntryPoint(simplename:symbol, descriptor:symbol, class:Class)
+.decl Reachable(method:Method, step:number)
+
+.decl CallGraph(insn:Insn, caller:Method, callee:Method)
+
+Reachable(method, 0) :- 
+    EntryPoint(simplename, descriptor, class),
+    Dispatch(simplename, descriptor, class, method).
+
+Reachable(callee, n+1),
+CallGraph(insn, caller, callee) :-
+    Reachable(caller, n),
+    n < MAXSTEP,
+    SpecialMethodInvocation(insn, _, callee, _, caller).
+
+Reachable(callee, n+1),
+CallGraph(insn, caller, callee) :-
+    Reachable(caller, n),
+    n < MAXSTEP,
+    StaticMethodInvocation(insn, _, callee, caller).
+
+Reachable(callee, n+1),
+CallGraph(insn, caller, callee) :-
+    Reachable(caller, n),
+    n < MAXSTEP,
+    VirtualMethodInvocation(insn, _, method, receiver, caller),
+    MethodInfo(method, simplename, _, _, _, descriptor, _),
+    VarType(receiver, class),
+    SubEqClass(subeqclass, class),
+    !ClassModifier("abstract", subeqclass),
+    Dispatch(simplename, descriptor, subeqclass, callee).
