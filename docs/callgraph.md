@@ -86,7 +86,7 @@ java8 -jar ~/code/soot-fact-generator/build/libs/soot-fact-generator.jar -i Benc
    ```
    souffle -I ~/code/ByteCodeDL/logic -F factsdir -D ~/code/ByteCodeDL/output ~/code/ByteCodeDL/example/cha-example-1.dl
    ```
-2. 执行bash importOutput2Neo4j.sh dbname
+2. 执行bash importOutput2Neo4j.sh neoImportCall.sh dbname
 3. 最后访问 http://ip:7474 登录 neo4j/bytecodedl
 
 
