@@ -30,3 +30,13 @@ CallGraph(insn, caller, callee) :-
     SubEqClass(subeqclass, class),
     !ClassModifier("abstract", subeqclass),
     Dispatch(simplename, descriptor, subeqclass, callee).
+
+Reachable(callee, n+1),
+CallGraph(insn, caller, callee) :- 
+    Reachable(caller, n),
+    n < MAXSTEP,
+    StaticMethodInvocation(insn, _, method, caller),
+    MethodInfo(method, "doPrivileged", _, "java.security.AccessController", _, _, _),
+    ActualParam(0, insn, param),
+    VarType(param, class),
+    MethodInfo(callee, "run", _, class, _, _, 0).
