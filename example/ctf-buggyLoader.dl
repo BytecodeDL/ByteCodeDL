@@ -1,0 +1,61 @@
+#define MAXSTEP 5
+
+#include "inputDeclaration.dl"
+#include "utils.dl"
+#include "cha.dl"
+
+
+.decl NonParamPublicMethod(method:Method, class:Class)
+.output NonParamPublicMethod
+
+.decl SinkDesc(simplename:symbol, class:Class)
+
+SinkDesc("exec", "java.lang.Runtime").
+SinkDesc("<init>", "java.lang.ProcessBuilder").
+SinkDesc("start", "java.lang.ProcessImpl").
+SinkDesc("loadClass", "java.lang.ClassLoader").
+SinkDesc("defineClass", "java.lang.ClassLoader").
+SinkDesc("readObject", "java.io.ObjectInputStream").
+SinkDesc("readExternal", "java.io.ObjectInputStream").
+
+.decl SinkMethod(method:Method)
+.output SinkMethod
+
+.decl EntryMethod(method:Method)
+
+
+SinkMethod(method) :-
+    SinkDesc(simplename, class),
+    SubEqClass(subeqclass, class),
+    !ClassModifier("abstract", subeqclass),
+    MethodInfo(method, simplename, _, subeqclass, _, _, _).
+
+EntryMethod(method),
+Reachable(method, 0),
+NonParamPublicMethod(method, class) :- 
+    MethodInfo(method, simplename, _, class, _, _, arity),
+    MethodModifier("public", method),
+    simplename != "<init>",
+    arity = 0,
+    SubClass(class, "java.io.Serializable").
+
+.decl CallNode(node:Method, label:symbol)
+.output CallNode
+
+CallNode(node, "method") :-
+    !EntryMethod(node),
+    !SinkMethod(node),
+    Reachable(node, _).
+
+CallNode(node, "sink") :-
+    Reachable(node, _),
+    SinkMethod(node).
+
+CallNode(node, "entry") :-
+    EntryMethod(node).
+
+.decl CallEdge(caller:Method, callee:Method)
+.output CallEdge
+
+CallEdge(caller, callee) :-
+    CallGraph(_, caller, callee).
