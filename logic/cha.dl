@@ -1,6 +1,7 @@
 
 .decl EntryPoint(simplename:symbol, descriptor:symbol, class:Class)
 .decl Reachable(method:Method, step:number)
+.decl SinkDesc(simplename:symbol, class:Class)
 .decl SinkMethod(method:Method)
 .decl EntryMethod(method:Method)
 
@@ -68,19 +69,17 @@ SinkReachable(caller, sink, n+1) :-
 
 #if CHAO > 1
 
-.decl ShortestPathToSink(caller:Method, callee:Method, sink:Method, step:number)
+.decl ShortestPathToSink(caller:Method, sink:Method, step:number)
 
-ShortestPathToSink(entry, callee, sink, n) :-
-    n = min step : {SinkReachable(entry, sink, step), EntryMethod(entry)},
-    SinkReachable(callee, sink, n-1),
-    CallGraph(_, entry, callee).
+ShortestPathToSink(entry, sink, n) :-
+    n = min step : {SinkReachable(entry, sink, step)},
+    EntryMethod(entry).
 
-ShortestPathToSink(callee, method, sink, n-1) :-
+ShortestPathToSink(callee, sink, n-1) :-
     n < MAXSTEP + 1,
-    ShortestPathToSink(_, callee, sink, n),
+    ShortestPathToSink(caller, sink, n),
     SinkReachable(callee, sink, n-1),
-    SinkReachable(method, sink, n-2),
-    CallGraph(_, callee, method).
+    CallGraph(_, caller, callee).
 
 #endif
 
@@ -93,8 +92,7 @@ ShortestPathToSink(callee, method, sink, n-1) :-
     #endif
     #if CHAO == 2
         RefinedReachable(method) :-
-            ShortestPathToSink(method, _, _, _);
-            ShortestPathToSink(_, method, _, _).
+            ShortestPathToSink(method, _, _).
     #endif
 #else
     RefinedReachable(method) :-

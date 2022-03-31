@@ -1,5 +1,5 @@
 #define MAXSTEP 5
-#define CHAO 1
+#define CHAO 2
 
 #include "inputDeclaration.dl"
 #include "utils.dl"
@@ -9,7 +9,6 @@
 .decl NonParamPublicMethod(method:Method, class:Class)
 .output NonParamPublicMethod
 
-.decl SinkDesc(simplename:symbol, class:Class)
 
 SinkDesc("exec", "java.lang.Runtime").
 SinkDesc("<init>", "java.lang.ProcessBuilder").
@@ -18,9 +17,6 @@ SinkDesc("loadClass", "java.lang.ClassLoader").
 SinkDesc("defineClass", "java.lang.ClassLoader").
 SinkDesc("readObject", "java.io.ObjectInputStream").
 SinkDesc("readExternal", "java.io.ObjectInputStream").
-
-
-.output SinkMethod
 
 
 EntryMethod(method),
@@ -32,3 +28,4 @@ NonParamPublicMethod(method, class) :-
     arity = 0,
     SubClass(class, "java.io.Serializable").
 
+.output SinkMethod

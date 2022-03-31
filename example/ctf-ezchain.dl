@@ -9,8 +9,6 @@
 .decl NonParamPublicMethod(method:Method, class:Class)
 .output NonParamPublicMethod
 
-.decl SinkDesc(simplename:symbol, class:Class)
-
 SinkDesc("exec", "java.lang.Runtime").
 SinkDesc("<init>", "java.lang.ProcessBuilder").
 SinkDesc("start", "java.lang.ProcessImpl").
@@ -19,7 +17,6 @@ SinkDesc("defineClass", "java.lang.ClassLoader").
 SinkDesc("readObject", "java.io.ObjectInputStream").
 SinkDesc("readExternal", "java.io.ObjectInputStream").
 
-.output SinkMethod
 
 EntryMethod(method),
 Reachable(method, 0),
@@ -28,3 +25,5 @@ NonParamPublicMethod(method, class) :-
     MethodModifier("public", method),
     contains("get", simplename),
     arity = 0.
+
+.output SinkMethod
