@@ -73,6 +73,7 @@ SinkReachable(caller, sink, n+1) :-
 
 ShortestPathToSink(entry, sink, n) :-
     n = min step : {SinkReachable(entry, sink, step)},
+    SinkMethod(sink),
     EntryMethod(entry).
 
 ShortestPathToSink(callee, sink, n-1) :-
