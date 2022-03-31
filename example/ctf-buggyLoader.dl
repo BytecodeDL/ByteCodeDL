@@ -1,4 +1,5 @@
 #define MAXSTEP 5
+#define CHAO 1
 
 #include "inputDeclaration.dl"
 #include "utils.dl"
@@ -18,17 +19,9 @@ SinkDesc("defineClass", "java.lang.ClassLoader").
 SinkDesc("readObject", "java.io.ObjectInputStream").
 SinkDesc("readExternal", "java.io.ObjectInputStream").
 
-.decl SinkMethod(method:Method)
+
 .output SinkMethod
 
-.decl EntryMethod(method:Method)
-
-
-SinkMethod(method) :-
-    SinkDesc(simplename, class),
-    SubEqClass(subeqclass, class),
-    !ClassModifier("abstract", subeqclass),
-    MethodInfo(method, simplename, _, subeqclass, _, _, _).
 
 EntryMethod(method),
 Reachable(method, 0),
@@ -39,23 +32,3 @@ NonParamPublicMethod(method, class) :-
     arity = 0,
     SubClass(class, "java.io.Serializable").
 
-.decl CallNode(node:Method, label:symbol)
-.output CallNode
-
-CallNode(node, "method") :-
-    !EntryMethod(node),
-    !SinkMethod(node),
-    Reachable(node, _).
-
-CallNode(node, "sink") :-
-    Reachable(node, _),
-    SinkMethod(node).
-
-CallNode(node, "entry") :-
-    EntryMethod(node).
-
-.decl CallEdge(caller:Method, callee:Method)
-.output CallEdge
-
-CallEdge(caller, callee) :-
-    CallGraph(_, caller, callee).
