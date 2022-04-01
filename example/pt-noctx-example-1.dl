@@ -1,0 +1,12 @@
+#include "inputDeclaration.dl"
+#include "utils.dl"
+#include "pt-noctx.dl"
+
+.init cipt = ContextInsensitivePt
+
+cipt.Reachable(method) :-
+    MethodInfo(method, simplename, _, _, _, descriptor, _),
+    simplename = "main",
+    descriptor = "([Ljava/lang/String;)V".
+
+.output cipt.VarPointsTo
