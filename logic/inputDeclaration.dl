@@ -72,6 +72,12 @@
 .decl StoreInstanceField(insn:Insn, index:number, var:Var, base:Var, field:Field, inMethod:Method)
 .input StoreInstanceField
 
+.decl LoadStaticField(insn:Insn, index:number, var:Var, field:Field, inMethod:Method)
+.input LoadStaticField
+
+.decl StoreStaticField(insn:Insn, index:number, var:Var, field:Field, inMethod:Method)
+.input StoreStaticField
+
 // Array
 .decl LoadArrayIndex(insn:Insn, index:number, to:Var, array:Var, inMethod:Method)
 .input LoadArrayIndex
