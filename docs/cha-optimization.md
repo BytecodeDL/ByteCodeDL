@@ -1,6 +1,9 @@
 # cha-optimization
 
+本文代码对应的分支是 [cha-optimization](https://github.com/BytecodeDL/ByteCodeDL/tree/cha-optimization)
+
 ## 实现&分析
+
 在实际测试中发现，如果路径过长会出现neo4j查询不出来的情况，还需要对CHA进行进一步优化。优化方向有两个：
 
 1. 尽可能减少节点的数量
