@@ -28,6 +28,7 @@ you can use the docker we builded like docker-compose.yml
   - [x] CHA
   - [ ] RTA
 - [ ] 指针分析
+  - [x] 上下文无关指针分析
 - [ ] 污点分析
 
 ## Usage
