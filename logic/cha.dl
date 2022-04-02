@@ -1,9 +1,20 @@
 
 .decl EntryPoint(simplename:symbol, descriptor:symbol, class:Class)
 .decl Reachable(method:Method, step:number)
+.decl SinkDesc(simplename:symbol, class:Class)
+.decl SinkMethod(method:Method)
+.decl EntryMethod(method:Method)
+
 
 .decl CallGraph(insn:Insn, caller:Method, callee:Method)
 
+SinkMethod(method) :-
+    SinkDesc(simplename, class),
+    SubEqClass(subeqclass, class),
+    !ClassModifier("abstract", subeqclass),
+    MethodInfo(method, simplename, _, subeqclass, _, _, _).
+
+EntryMethod(method),
 Reachable(method, 0) :- 
     EntryPoint(simplename, descriptor, class),
     Dispatch(simplename, descriptor, class, method).
@@ -40,3 +51,75 @@ CallGraph(insn, caller, callee) :-
     ActualParam(0, insn, param),
     VarType(param, class),
     MethodInfo(callee, "run", _, class, _, _, 0).
+
+// CHAO is CHA OPTIMIZATION LEVEL
+#if CHAO > 0
+
+.decl SinkReachable(method:Method, sink:Method, step:number)
+
+SinkReachable(sink, sink, 0) :-
+    SinkMethod(sink).
+
+SinkReachable(caller, sink, n+1) :-
+    n < MAXSTEP,
+    SinkReachable(callee, sink, n),
+    CallGraph(_, caller, callee).
+
+#endif
+
+#if CHAO > 1
+
+.decl ShortestPathToSink(caller:Method, sink:Method, step:number)
+
+ShortestPathToSink(entry, sink, n) :-
+    n = min step : {SinkReachable(entry, sink, step)},
+    SinkMethod(sink),
+    EntryMethod(entry).
+
+ShortestPathToSink(callee, sink, n-1) :-
+    n < MAXSTEP + 1,
+    ShortestPathToSink(caller, sink, n),
+    SinkReachable(callee, sink, n-1),
+    CallGraph(_, caller, callee).
+
+#endif
+
+.decl RefinedReachable(method:Method)
+
+#if defined(CHAO)
+    #if CHAO == 1
+        RefinedReachable(method) :-
+            SinkReachable(method, _, _).
+    #endif
+    #if CHAO == 2
+        RefinedReachable(method) :-
+            ShortestPathToSink(method, _, _).
+    #endif
+#else
+    RefinedReachable(method) :-
+        Reachable(method, _).
+#endif
+
+.decl CallNode(node:Method, label:symbol)
+.output CallNode
+
+CallNode(node, "method") :-
+    !EntryMethod(node),
+    !SinkMethod(node),
+    RefinedReachable(node).
+
+CallNode(node, "sink") :-
+    RefinedReachable(node),
+    SinkMethod(node).
+
+CallNode(node, "entry") :-
+    RefinedReachable(node),
+    EntryMethod(node).
+
+.decl CallEdge(caller:Method, callee:Method)
+.output CallEdge
+
+CallEdge(caller, callee) :-
+    RefinedReachable(caller),
+    RefinedReachable(callee),
+    CallGraph(_, caller, callee).
