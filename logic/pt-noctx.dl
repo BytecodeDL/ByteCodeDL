@@ -1,7 +1,8 @@
 .comp ContextInsensitivePt{
-    .decl VarPointsTo(value:Heap, var:Var)
-    .decl InstanceFieldPointsTo(value:Heap, baseHeap:Heap, field:Field)
-    .decl StaticFieldPointsTo(value:Heap, field:Field)
+    .decl VarPointsTo(heap:Heap, var:Var)
+    .decl InstanceFieldPointsTo(heap:Heap, baseHeap:Heap, field:Field)
+    .decl StaticFieldPointsTo(heap:Heap, field:Field)
+    .decl ArrayIndexPointsTo(heap:Heap, baseHeap:Heap)
     .decl CallGraph(insn:Insn, caller:Method, callee:Method)
     .decl Reachable(method:Method)
 
@@ -52,13 +53,15 @@
     VarPointsTo(heap, to) :-
         Reachable(method),
         LoadArrayIndex(_, _, to, base, method),
-        VarPointsTo(heap, base).
+        VarPointsTo(baseHeap, base),
+        ArrayIndexPointsTo(heap, baseHeap).
 
     // store into array
-    VarPointsTo(heap, base) :-
+    ArrayIndexPointsTo(heap, baseHeap) :-
         Reachable(method),
         StoreArrayIndex(_, _, from, base, method),
-        VarPointsTo(heap, from).
+        VarPointsTo(heap, from),
+        VarPointsTo(baseHeap, base).
     
     Reachable(callee),
     CallGraph(insn, caller, callee) :- 
