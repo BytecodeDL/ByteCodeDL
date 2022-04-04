@@ -1,0 +1,106 @@
+.comp PTaint{
+    .decl VarPointsTo(heap:Heap, var:Var)
+    .decl InstanceFieldPointsTo(heap:Heap, baseHeap:Heap, field:Field)
+    .decl CallGraph(insn:Insn, caller:Method, callee:Method)
+    .decl Reachable(method:Method)
+
+    .decl NewTaintedValue(insn:Insn, type:Class, heap:Heap)
+    .decl Leak(insn:Insn, heap:Heap)
+    .decl SourceMethod(method:Method, type:Class)
+    .decl SinkMethod(method:Method, n:number)
+    .decl Tainted(insn:Insn, heap:Heap)
+
+    .decl BaseToRetTransfer(method:Method, type:Class)
+    .decl ArgToRetTransfer(method:Method, n:number, type:Class)
+    .decl IsTaintedFrom(insn:Insn, from:Var, to:Var, type:Class)
+    .decl TransferTaint(heap:Heap, newHeapType:Class, newHeap:Heap)
+    
+
+    // new
+    VarPointsTo(heap, var) :-
+        Reachable(method),
+        AssignHeapAllocation(_, _, heap, var, method, _).
+    
+    // assign
+    VarPointsTo(heap, to) :- 
+        Reachable(method),
+        VarPointsTo(heap, from),
+        AssignLocal(_, _, from, to, method).
+    
+    // load field
+    VarPointsTo(heap, to) :-
+        Reachable(method),
+        LoadInstanceField(_, _, to, base, field, method),
+        VarPointsTo(baseHeap, base),
+        InstanceFieldPointsTo(heap, baseHeap, field).
+    
+    // store field
+    InstanceFieldPointsTo(heap, baseHeap, field) :-
+        Reachable(method),
+        StoreInstanceField(_, _, from, base, field, method),
+        VarPointsTo(heap, from),
+        VarPointsTo(baseHeap, base).
+    
+
+    Reachable(callee),
+    VarPointsTo(baseHeap, this),
+    CallGraph(insn, caller, callee) :- 
+        Reachable(caller),
+        VirtualMethodInvocation(insn, _, method, base, caller),
+        VarPointsTo(baseHeap, base),
+        NormalHeap(baseHeap, class),
+        MethodInfo(method, simplename, _, _, _, descriptor, _),
+        Dispatch(simplename, descriptor, class, callee),
+        ThisVar(callee, this).
+    
+    // param
+    VarPointsTo(heap, param) :- 
+        CallGraph(insn, _, callee),
+        ActualParam(n, insn, arg),
+        FormalParam(n, callee, param),
+        VarPointsTo(heap, arg).
+    
+    // return
+    VarPointsTo(heap, return) :- 
+        CallGraph(insn, _, callee),
+        Return(_, _, var, callee),
+        AssignReturnValue(insn, return),
+        VarPointsTo(heap, var).
+    
+    Tainted(insn, heap),
+    NewTaintedValue(insn, type, heap),
+    VarPointsTo(heap, to) :-
+        SourceMethod(callee, type),
+        CallGraph(insn, _, callee),
+        AssignReturnValue(insn, to),
+        heap = cat("NewTainted::", insn).
+    
+    Leak(insn, heap) :-
+        CallGraph(insn, _, callee),
+        SinkMethod(callee, n),
+        ActualParam(n, insn, arg),
+        VarPointsTo(heap, arg),
+        Tainted(_, heap).
+
+    IsTaintedFrom(insn, base, ret, type) :-
+        CallGraph(insn, _, callee),
+        BaseToRetTransfer(callee, type),
+        VirtualMethodInvocation(insn, _, _, base, _),
+        AssignReturnValue(insn, ret).
+    
+    IsTaintedFrom(insn, arg, ret, type) :-
+        CallGraph(insn, _, callee),
+        ArgToRetTransfer(callee, n, type),
+        ActualParam(n, insn, arg),
+        AssignReturnValue(insn, ret).
+
+    Tainted(insn, newHeap),
+    TransferTaint(heap, type, newHeap),
+    VarPointsTo(newHeap, var) :- 
+        IsTaintedFrom(insn, from, to, type),
+        VarPointsTo(heap, from),
+        Tainted(_, heap),
+        newHeap = cat("TransferTaint::", insn),
+        VarPointsTo(oldHeap, to),
+        AssignHeapAllocation(_, _, oldHeap, var, _, _).
+}
