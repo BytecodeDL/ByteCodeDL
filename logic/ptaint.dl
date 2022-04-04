@@ -3,6 +3,7 @@
     .decl InstanceFieldPointsTo(heap:Heap, baseHeap:Heap, field:Field)
     .decl CallGraph(insn:Insn, caller:Method, callee:Method)
     .decl Reachable(method:Method)
+    .decl InterProcAssign(from:Var, to:Var)
 
     .decl NewTaintedValue(insn:Insn, type:Class, heap:Heap)
     .decl Leak(insn:Insn, heap:Heap)
@@ -11,6 +12,11 @@
     .decl Tainted(insn:Insn, heap:Heap)
 
     .decl SanitizeMethod(method:Method)
+    .decl SanitizeMethodParam(var:Var)
+
+    SanitizeMethodParam(var) :-
+        FormalParam(_, method, var),
+        SanitizeMethod(method).
 
     .decl BaseToRetTransfer(method:Method, type:Class)
     .decl ArgToRetTransfer(method:Method, n:number, type:Class)
@@ -53,22 +59,28 @@
         MethodInfo(method, simplename, _, _, _, descriptor, _),
         Dispatch(simplename, descriptor, class, callee).
     
-    // normal param
-    VarPointsTo(heap, param) :- 
+    InterProcAssign(arg, param) :-
         CallGraph(insn, _, callee),
         ActualParam(n, insn, arg),
-        FormalParam(n, callee, param),
-        VarPointsTo(heap, arg),
+        FormalParam(n, callee, param).
+    
+    InterProcAssign(var, return) :-
+        CallGraph(insn, _, callee),
+        Return(_, _, var, callee),
+        AssignReturnValue(insn, return).
+
+    // normal heap
+    VarPointsTo(heap, to) :- 
+        InterProcAssign(from, to),
+        VarPointsTo(heap, from),
         NormalHeap(heap, _).
     
-    // taint param
-    VarPointsTo(heap, param) :- 
-        CallGraph(insn, _, callee),
-        ActualParam(n, insn, arg),
-        FormalParam(n, callee, param),
-        VarPointsTo(heap, arg),
+    // taint heap
+    VarPointsTo(heap, to) :- 
+        InterProcAssign(from, to),
+        VarPointsTo(heap, from),
         Tainted(_, heap),
-        !SanitizeMethod(callee).
+        !SanitizeMethodParam(to).
     
     // return
     VarPointsTo(heap, return) :- 
