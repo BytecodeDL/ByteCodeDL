@@ -10,6 +10,8 @@
     .decl SinkMethod(method:Method, n:number)
     .decl Tainted(insn:Insn, heap:Heap)
 
+    .decl SanitizeMethod(method:Method)
+
     .decl BaseToRetTransfer(method:Method, type:Class)
     .decl ArgToRetTransfer(method:Method, n:number, type:Class)
     .decl IsTaintedFrom(insn:Insn, from:Var, to:Var, type:Class)
@@ -51,12 +53,22 @@
         MethodInfo(method, simplename, _, _, _, descriptor, _),
         Dispatch(simplename, descriptor, class, callee).
     
-    // param
+    // normal param
     VarPointsTo(heap, param) :- 
         CallGraph(insn, _, callee),
         ActualParam(n, insn, arg),
         FormalParam(n, callee, param),
-        VarPointsTo(heap, arg).
+        VarPointsTo(heap, arg),
+        NormalHeap(heap, _).
+    
+    // taint param
+    VarPointsTo(heap, param) :- 
+        CallGraph(insn, _, callee),
+        ActualParam(n, insn, arg),
+        FormalParam(n, callee, param),
+        VarPointsTo(heap, arg),
+        Tainted(_, heap),
+        !SanitizeMethod(callee).
     
     // return
     VarPointsTo(heap, return) :- 
