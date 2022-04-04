@@ -43,15 +43,13 @@
     
 
     Reachable(callee),
-    VarPointsTo(baseHeap, this),
     CallGraph(insn, caller, callee) :- 
         Reachable(caller),
         VirtualMethodInvocation(insn, _, method, base, caller),
         VarPointsTo(baseHeap, base),
         NormalHeap(baseHeap, class),
         MethodInfo(method, simplename, _, _, _, descriptor, _),
-        Dispatch(simplename, descriptor, class, callee),
-        ThisVar(callee, this).
+        Dispatch(simplename, descriptor, class, callee).
     
     // param
     VarPointsTo(heap, param) :- 
@@ -66,6 +64,13 @@
         Return(_, _, var, callee),
         AssignReturnValue(insn, return),
         VarPointsTo(heap, var).
+    
+    // this
+    VarPointsTo(heap, this) :-
+        CallGraph(insn, _, callee),
+        VirtualMethodInvocation(insn, _, _, base, _),
+        VarPointsTo(heap, base),
+        ThisVar(callee, this).
     
     Tainted(insn, heap),
     NewTaintedValue(insn, type, heap),
