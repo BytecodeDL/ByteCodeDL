@@ -3,18 +3,16 @@
 .comp PTaint{
     .init cipt = ContextInsensitivePt
 
-    .decl NewTaintedValue(insn:Insn, type:Class, heap:Heap)
-    .decl Leak(insn:Insn, heap:Heap)
-    .decl SourceMethod(method:Method, type:Class)
+    .decl TaintHeap(insn:Insn, heap:Heap)
+    .decl SourceMethod(method:Method)
     .decl SinkMethod(method:Method, n:number)
-    .decl Tainted(insn:Insn, heap:Heap)
 
     .decl SanitizeMethod(method:Method)
 
-    .decl BaseToRetTransfer(method:Method, type:Class)
-    .decl ArgToRetTransfer(method:Method, n:number, type:Class)
-    .decl IsTaintedFrom(insn:Insn, from:Var, to:Var, type:Class)
-    .decl TransferTaint(heap:Heap, newHeapType:Class, newHeap:Heap)
+    .decl BaseToRetTransfer(method:Method)
+    .decl ArgToRetTransfer(method:Method, n:number)
+    .decl IsTaintedFrom(insn:Insn, from:Var, to:Var)
+    .decl TransferTaint(heap:Heap, newHeap:Heap)
     
     
     // taint arg to param
@@ -23,43 +21,35 @@
         ActualParam(n, insn, arg),
         FormalParam(n, callee, param),
         cipt.VarPointsTo(heap, arg),
-        Tainted(_, heap),
+        TaintHeap(_, heap),
         !SanitizeMethod(callee).
     
     
-    Tainted(insn, heap),
-    NewTaintedValue(insn, type, heap),
+    TaintHeap(insn, heap),
     cipt.VarPointsTo(heap, to) :-
-        SourceMethod(callee, type),
+        SourceMethod(callee),
         cipt.CallGraph(insn, _, callee),
         AssignReturnValue(insn, to),
         heap = cat("NewTainted::", insn).
-    
-    Leak(insn, heap) :-
-        cipt.CallGraph(insn, _, callee),
-        SinkMethod(callee, n),
-        ActualParam(n, insn, arg),
-        cipt.VarPointsTo(heap, arg),
-        Tainted(_, heap).
 
-    IsTaintedFrom(insn, base, ret, type) :-
+    IsTaintedFrom(insn, base, ret) :-
         cipt.CallGraph(insn, _, callee),
-        BaseToRetTransfer(callee, type),
+        BaseToRetTransfer(callee),
         VirtualMethodInvocation(insn, _, _, base, _),
         AssignReturnValue(insn, ret).
     
-    IsTaintedFrom(insn, arg, ret, type) :-
+    IsTaintedFrom(insn, arg, ret) :-
         cipt.CallGraph(insn, _, callee),
-        ArgToRetTransfer(callee, n, type),
+        ArgToRetTransfer(callee, n),
         ActualParam(n, insn, arg),
         AssignReturnValue(insn, ret).
 
-    Tainted(insn, newHeap),
-    TransferTaint(heap, type, newHeap),
+    TaintHeap(insn, newHeap),
+    TransferTaint(heap, newHeap),
     cipt.VarPointsTo(newHeap, var) :- 
-        IsTaintedFrom(insn, from, to, type),
+        IsTaintedFrom(insn, from, to),
         cipt.VarPointsTo(heap, from),
-        Tainted(_, heap),
+        TaintHeap(_, heap),
         newHeap = cat("TransferTaint::", insn),
         cipt.VarPointsTo(oldHeap, to),
         AssignHeapAllocation(_, _, oldHeap, var, _, _).

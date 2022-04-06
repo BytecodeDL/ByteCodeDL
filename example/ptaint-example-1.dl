@@ -1,0 +1,30 @@
+#include "inputDeclaration.dl"
+#include "utils.dl"
+#include "ptaint.dl"
+
+.init ptaint = PTaint
+
+ptaint.cipt.Reachable("<com.bytecodedl.benchmark.demo.TaintDemo3: void main(java.lang.String[])>").
+
+ptaint.SourceMethod("<com.bytecodedl.benchmark.demo.TaintDemo3: java.lang.String Source()>").
+ptaint.SinkMethod("<com.bytecodedl.benchmark.demo.TaintDemo3: void Sink(java.lang.String)>", 0).
+
+ptaint.BaseToRetTransfer("<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>").
+ptaint.BaseToRetTransfer("<java.lang.StringBuilder: java.lang.String toString()>").
+
+ptaint.ArgToRetTransfer("<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>", 0).
+
+ptaint.SanitizeMethod("<com.bytecodedl.benchmark.demo.TaintDemo3: java.lang.String Sanitize(java.lang.String)>").
+
+
+.decl TaintVar(var:Var)
+
+TaintVar(var) :-
+    ptaint.cipt.VarPointsTo(heap, var),
+    ptaint.TaintHeap(_, heap).
+
+.output TaintVar
+
+.output ptaint.TaintHeap
+.output ptaint.TransferTaint
+.output ptaint.cipt.VarPointsTo
