@@ -29,11 +29,17 @@ you can use the docker we builded like docker-compose.yml
   - [ ] RTA
 - [ ] 指针分析
   - [x] 上下文无关指针分析
+  - [ ] 一阶上下文调用点敏感指针分析
+  - [ ] 一阶上下文对象敏感指针分析
+  - [ ] 一阶上下文类型敏感指针分析
 - [ ] 污点分析
+  - [x] 上下文无关ptaint
 
 ## Usage
+
 见docs文件夹
 
 ## Acknowledgement
+
 - 感谢南大的李樾和谭添两位老师，通过他们开设的[程序分析课程](https://pascal-group.bitbucket.io/teaching.html)入门了静态分析这一领域。
 - 感谢[Doop](https://bitbucket.org/yanniss/doop) , 提供了soot-fact-generator.jar 。
