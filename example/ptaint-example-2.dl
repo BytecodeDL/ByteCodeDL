@@ -19,12 +19,15 @@ ptaint.cipt.VarPointsTo(heap, this) :-
     VarType(this, class),
     heap = cat("Mock::", class).
 
-ptaint.TaintHeap(insn, heap),
-ptaint.cipt.VarPointsTo(heap, param) :- 
+NormalHeap(heap, class),
+ptaint.TaintHeap(insn, taintHeap),
+ptaint.cipt.VarPointsTo(heap, param),
+ptaint.cipt.VarPointsTo(taintHeap, param) :- 
     EntryMethod(method),
     FormalParam(_, method, param),
     VarType(param, class),
     heap = cat("Mock::", class),
+    taintHeap = cat("NewTainted::", class),
     insn = "Init::Param".
 
 
