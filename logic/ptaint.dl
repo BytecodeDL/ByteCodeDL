@@ -1,9 +1,7 @@
+#include "pt-noctx.dl"
+
 .comp PTaint{
-    .decl VarPointsTo(heap:Heap, var:Var)
-    .decl InstanceFieldPointsTo(heap:Heap, baseHeap:Heap, field:Field)
-    .decl CallGraph(insn:Insn, caller:Method, callee:Method)
-    .decl Reachable(method:Method)
-    .decl InterProcAssign(from:Var, to:Var)
+    .init cipt = ContextInsensitivePt
 
     .decl NewTaintedValue(insn:Insn, type:Class, heap:Heap)
     .decl Leak(insn:Insn, heap:Heap)
@@ -12,124 +10,57 @@
     .decl Tainted(insn:Insn, heap:Heap)
 
     .decl SanitizeMethod(method:Method)
-    .decl SanitizeMethodParam(var:Var)
-
-    SanitizeMethodParam(var) :-
-        FormalParam(_, method, var),
-        SanitizeMethod(method).
 
     .decl BaseToRetTransfer(method:Method, type:Class)
     .decl ArgToRetTransfer(method:Method, n:number, type:Class)
     .decl IsTaintedFrom(insn:Insn, from:Var, to:Var, type:Class)
     .decl TransferTaint(heap:Heap, newHeapType:Class, newHeap:Heap)
     
-
-    // new
-    VarPointsTo(heap, var) :-
-        Reachable(method),
-        AssignHeapAllocation(_, _, heap, var, method, _).
     
-    // assign
-    VarPointsTo(heap, to) :- 
-        Reachable(method),
-        VarPointsTo(heap, from),
-        AssignLocal(_, _, from, to, method).
-    
-    // load field
-    VarPointsTo(heap, to) :-
-        Reachable(method),
-        LoadInstanceField(_, _, to, base, field, method),
-        VarPointsTo(baseHeap, base),
-        InstanceFieldPointsTo(heap, baseHeap, field).
-    
-    // store field
-    InstanceFieldPointsTo(heap, baseHeap, field) :-
-        Reachable(method),
-        StoreInstanceField(_, _, from, base, field, method),
-        VarPointsTo(heap, from),
-        VarPointsTo(baseHeap, base).
-    
-
-    Reachable(callee),
-    CallGraph(insn, caller, callee) :- 
-        Reachable(caller),
-        VirtualMethodInvocation(insn, _, method, base, caller),
-        VarPointsTo(baseHeap, base),
-        NormalHeap(baseHeap, class),
-        MethodInfo(method, simplename, _, _, _, descriptor, _),
-        Dispatch(simplename, descriptor, class, callee).
-    
-    InterProcAssign(arg, param) :-
-        CallGraph(insn, _, callee),
+    // taint arg to param
+    cipt.VarPointsTo(heap, param) :- 
+        cipt.CallGraph(insn, _, callee),
         ActualParam(n, insn, arg),
-        FormalParam(n, callee, param).
-    
-    InterProcAssign(var, return) :-
-        CallGraph(insn, _, callee),
-        Return(_, _, var, callee),
-        AssignReturnValue(insn, return).
-
-    // normal heap
-    VarPointsTo(heap, to) :- 
-        InterProcAssign(from, to),
-        VarPointsTo(heap, from),
-        NormalHeap(heap, _).
-    
-    // taint heap
-    VarPointsTo(heap, to) :- 
-        InterProcAssign(from, to),
-        VarPointsTo(heap, from),
+        FormalParam(n, callee, param),
+        cipt.VarPointsTo(heap, arg),
         Tainted(_, heap),
-        !SanitizeMethodParam(to).
+        !SanitizeMethod(callee).
     
-    // return
-    VarPointsTo(heap, return) :- 
-        CallGraph(insn, _, callee),
-        Return(_, _, var, callee),
-        AssignReturnValue(insn, return),
-        VarPointsTo(heap, var).
-    
-    // this
-    VarPointsTo(heap, this) :-
-        CallGraph(insn, _, callee),
-        VirtualMethodInvocation(insn, _, _, base, _),
-        VarPointsTo(heap, base),
-        ThisVar(callee, this).
     
     Tainted(insn, heap),
     NewTaintedValue(insn, type, heap),
-    VarPointsTo(heap, to) :-
+    cipt.VarPointsTo(heap, to) :-
         SourceMethod(callee, type),
-        CallGraph(insn, _, callee),
+        cipt.CallGraph(insn, _, callee),
         AssignReturnValue(insn, to),
         heap = cat("NewTainted::", insn).
     
     Leak(insn, heap) :-
-        CallGraph(insn, _, callee),
+        cipt.CallGraph(insn, _, callee),
         SinkMethod(callee, n),
         ActualParam(n, insn, arg),
-        VarPointsTo(heap, arg),
+        cipt.VarPointsTo(heap, arg),
         Tainted(_, heap).
 
     IsTaintedFrom(insn, base, ret, type) :-
-        CallGraph(insn, _, callee),
+        cipt.CallGraph(insn, _, callee),
         BaseToRetTransfer(callee, type),
         VirtualMethodInvocation(insn, _, _, base, _),
         AssignReturnValue(insn, ret).
     
     IsTaintedFrom(insn, arg, ret, type) :-
-        CallGraph(insn, _, callee),
+        cipt.CallGraph(insn, _, callee),
         ArgToRetTransfer(callee, n, type),
         ActualParam(n, insn, arg),
         AssignReturnValue(insn, ret).
 
     Tainted(insn, newHeap),
     TransferTaint(heap, type, newHeap),
-    VarPointsTo(newHeap, var) :- 
+    cipt.VarPointsTo(newHeap, var) :- 
         IsTaintedFrom(insn, from, to, type),
-        VarPointsTo(heap, from),
+        cipt.VarPointsTo(heap, from),
         Tainted(_, heap),
         newHeap = cat("TransferTaint::", insn),
-        VarPointsTo(oldHeap, to),
+        cipt.VarPointsTo(oldHeap, to),
         AssignHeapAllocation(_, _, oldHeap, var, _, _).
 }

@@ -87,7 +87,8 @@
         CallGraph(insn, _, callee),
         ActualParam(n, insn, arg),
         FormalParam(n, callee, param),
-        VarPointsTo(heap, arg).
+        VarPointsTo(heap, arg),
+        NormalHeap(heap, _).
     
     // return
     VarPointsTo(heap, return) :- 
