@@ -4,6 +4,7 @@
 .decl SinkDesc(simplename:symbol, class:Class)
 .decl SinkMethod(method:Method)
 .decl EntryMethod(method:Method)
+.decl BanCaller(method:Method)
 
 
 .decl CallGraph(insn:Insn, caller:Method, callee:Method)
@@ -22,18 +23,21 @@ Reachable(method, 0) :-
 Reachable(callee, n+1),
 CallGraph(insn, caller, callee) :-
     Reachable(caller, n),
+    !BanCaller(caller),
     n < MAXSTEP,
     SpecialMethodInvocation(insn, _, callee, _, caller).
 
 Reachable(callee, n+1),
 CallGraph(insn, caller, callee) :-
     Reachable(caller, n),
+    !BanCaller(caller),
     n < MAXSTEP,
     StaticMethodInvocation(insn, _, callee, caller).
 
 Reachable(callee, n+1),
 CallGraph(insn, caller, callee) :-
     Reachable(caller, n),
+    !BanCaller(caller),
     n < MAXSTEP,
     VirtualMethodInvocation(insn, _, method, receiver, caller),
     MethodInfo(method, simplename, _, _, _, descriptor, _),
@@ -45,6 +49,7 @@ CallGraph(insn, caller, callee) :-
 Reachable(callee, n+1),
 CallGraph(insn, caller, callee) :- 
     Reachable(caller, n),
+    !BanCaller(caller),
     n < MAXSTEP,
     StaticMethodInvocation(insn, _, method, caller),
     MethodInfo(method, "doPrivileged", _, "java.security.AccessController", _, _, _),
