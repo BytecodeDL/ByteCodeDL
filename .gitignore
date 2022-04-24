@@ -1,3 +1,4 @@
 *.csv
 output/*.csv
 .DS_Store
+.idea

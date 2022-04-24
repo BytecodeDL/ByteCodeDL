@@ -10,23 +10,3 @@ EntryPoint(simplename, descriptor, class) :-
     MethodInfo(_, simplename, _, class, _, descriptor, _),
     simplename = "main",
     descriptor = "([Ljava/lang/String;)V".
-
-.decl CallNode(node:Method, label:symbol)
-.output CallNode
-
-CallNode(node, "method") :-
-    Reachable(node, n),
-    n > 0.
-
-CallNode(node, "entrypoint") :-
-    Reachable(node, n),
-    n = 0.
-
-.decl CallEdge(caller:Method, callee:Method)
-.output CallEdge
-
-CallEdge(caller, callee) :-
-    CallGraph(_, caller, callee).
-
-// ouput callgraph 
-.output CallGraph
