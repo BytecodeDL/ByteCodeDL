@@ -1,5 +1,7 @@
 # ByteCodeDL
 
+![logo](./bdl-logo.png)
+
 A declarative static analysis tool for jvm bytecode based Datalog like CodeQL
 
 ## Why ByteCodeDL
@@ -38,6 +40,11 @@ you can use the docker we builded like docker-compose.yml
 ## Usage
 
 见docs文件夹
+
+## Plugin
+
+- IDEA
+  - [BDLH](https://github.com/BytecodeDL/BDLH)
 
 ## Acknowledgement
 
