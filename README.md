@@ -1,6 +1,8 @@
 # ByteCodeDL
 
-![logo](./bdl-logo.png)
+<div align="center">
+	<img src="./bdl-logo.png" alt="ByteCodeDL" width="200">
+</div>
 
 A declarative static analysis tool for jvm bytecode based Datalog like CodeQL
 
