@@ -28,7 +28,7 @@ you can use the docker we builded like docker-compose.yml
 ## Features
 
 - [x] 搜索功能
-- [ ] 调用图分析
+- [x] 调用图分析
   - [x] CHA
   - [x] RTA
 - [ ] 指针分析
@@ -46,7 +46,8 @@ you can use the docker we builded like docker-compose.yml
 ## Plugin
 
 - IDEA
-  - [BDLH](https://github.com/BytecodeDL/BDLH)
+  - ByteCodeDL helper [BDLH](https://github.com/BytecodeDL/BDLH)
+  - Datalog language plugin [intellij-datalog](https://github.com/BytecodeDL/intellij-datalog)
 
 ## Acknowledgement
 
