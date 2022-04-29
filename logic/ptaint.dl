@@ -1,3 +1,4 @@
+#pragma once
 #include "pt-noctx.dl"
 
 .comp PTaint{
