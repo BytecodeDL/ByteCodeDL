@@ -140,7 +140,7 @@ CHA只会存在误报，但是RTA既可能存在误报也可能存在漏报。
 1. 执行下面命令将结果输出到output文件夹
    
    ```bash
-   souffle -I ~/code/ByteCodeDL/logic -F factsdir -D ~/code/ByteCodeDL/output ~/code/ByteCodeDL/example/cha-example-1.dl
+   souffle -F factsdir -D ~/code/ByteCodeDL/output ~/code/ByteCodeDL/example/cha-example-1.dl
    ```
 
 2. 执行bash importOutput2Neo4j.sh neoImportCall.sh dbname

@@ -375,7 +375,7 @@ java8 -jar ~/code/soot-fact-generator/build/libs/soot-fact-generator.jar -i Benc
 // 切换目录
 cd tainttest
 // 执行souffle
-souffle -I ~/code/ByteCodeDL/logic -F . -D output ~/code/ByteCodeDL/example/ptaint-example-1.dl
+souffle -F . -D output ~/code/ByteCodeDL/example/ptaint-example-1.dl
 ```
 
 然后在ouput目录能够看到`grep "Demo3" TaintVar.csv`结果

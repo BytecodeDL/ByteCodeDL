@@ -1,6 +1,6 @@
 # utils
 
-## Class Hierachy
+## Class Hierarchy
 
 需要构建一个类型层次图，用于寻找某个类的子类、父类，或者用于判断两个类之间是否有继承关系。
 

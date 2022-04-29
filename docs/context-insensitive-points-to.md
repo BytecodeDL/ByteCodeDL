@@ -263,7 +263,7 @@ cipt.Reachable(method) :-
 然后执行
 
 ```bash
-souffle -I ByteCodeDL/logic -F factsdir -D ByteCodeDL/output ByteCodeDL/example/pt-noctx-example-1.dl
+souffle -F factsdir -D ByteCodeDL/output ByteCodeDL/example/pt-noctx-example-1.dl
 ```
 
 分析结果保存在 output/cipt.VarPointsTo
