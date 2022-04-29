@@ -1,0 +1,7 @@
+#define MAXSTEP 8
+
+#include "../logic/RTA.dl"
+
+.init rta = RTA
+
+rta.EntryPoint("main", "([Ljava/lang/String;)V", "com.bytecodedl.benchmark.demo.VirtualCallDemo1").
