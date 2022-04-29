@@ -1,4 +1,4 @@
-#include "inputDeclaration.dl"
+#include "../logic/inputDeclaration.dl"
 
 .decl QueryResult(class:Class, method:Method)
 .output QueryResult

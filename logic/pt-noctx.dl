@@ -1,3 +1,6 @@
+#pragma once
+#include "utils.dl"
+
 .comp ContextInsensitivePt{
     .decl VarPointsTo(heap:Heap, var:Var)
     .decl InstanceFieldPointsTo(heap:Heap, baseHeap:Heap, field:Field)

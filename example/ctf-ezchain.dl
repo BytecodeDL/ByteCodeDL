@@ -1,9 +1,7 @@
 #define MAXSTEP 5
 #define CHAO 2
 
-#include "inputDeclaration.dl"
-#include "utils.dl"
-#include "cha.dl"
+#include "../logic/cha.dl"
 
 
 .decl NonParamPublicMethod(method:Method, class:Class)

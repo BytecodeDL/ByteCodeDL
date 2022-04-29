@@ -1,8 +1,6 @@
 #define MAXSTEP 8
 
-#include "inputDeclaration.dl"
-#include "utils.dl"
-#include "cha.dl"
+#include "../logic/cha.dl"
 
 
 // init entrypoint 

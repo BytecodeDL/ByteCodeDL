@@ -1,3 +1,7 @@
+#pragma once
+#include "inputDeclaration.dl"
+#include "utils.dl"
+
 .comp RTA{
     .decl EntryPoint(simplename:symbol, descriptor:symbol, class:Class)
     .decl Reachable(method:Method, step:number)
@@ -97,7 +101,7 @@
 
     .decl RefinedReachable(method:Method)
 
-    #if defined(RTAO)
+    #ifdef RTAO
         #if RTAO == 1
             RefinedReachable(method) :-
                 SinkReachable(method, _, _).

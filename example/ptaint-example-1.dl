@@ -1,6 +1,4 @@
-#include "inputDeclaration.dl"
-#include "utils.dl"
-#include "ptaint.dl"
+#include "../logic/ptaint.dl"
 
 .init ptaint = PTaint
 

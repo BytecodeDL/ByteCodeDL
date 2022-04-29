@@ -1,3 +1,5 @@
+#pragma once
+#include "utils.dl"
 
 .decl EntryPoint(simplename:symbol, descriptor:symbol, class:Class)
 .decl Reachable(method:Method, step:number)
@@ -91,7 +93,7 @@ ShortestPathToSink(callee, sink, n-1) :-
 
 .decl RefinedReachable(method:Method)
 
-#if defined(CHAO)
+#ifdef CHAO
     #if CHAO == 1
         RefinedReachable(method) :-
             SinkReachable(method, _, _).

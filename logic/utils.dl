@@ -1,3 +1,6 @@
+#pragma once
+#include "inputDeclaration.dl"
+
 //self define relation
 
 // Utils

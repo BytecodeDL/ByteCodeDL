@@ -1,6 +1,4 @@
-#include "inputDeclaration.dl"
-#include "utils.dl"
-#include "pt-noctx.dl"
+#include "../logic/pt-noctx.dl"
 
 .init cipt = ContextInsensitivePt
 

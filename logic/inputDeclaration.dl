@@ -1,3 +1,5 @@
+#pragma once
+
 .type Insn <: symbol
 .type Var <: symbol
 .type Heap <: symbol
@@ -29,10 +31,10 @@
 // method 
 
 .decl MethodInfo(method:Method, simplename:symbol, param:symbol, class:Class, return:Class, jvmDescriptor:symbol, arity:number)
-.input MethodInfo(IO="file", filename="Method.facts", delimiter="\t")
+.input MethodInfo(IO=file, filename="Method.facts", delimiter="\t")
 
 .decl MethodModifier(mod:symbol, method:Method)
-.input MethodModifier(filename="Method-Modifier.facts")
+.input MethodModifier(IO=file, filename="Method-Modifier.facts", delimiter="\t")
 
 .decl ThisVar(method:Method, this:Var)
 .input ThisVar
@@ -61,10 +63,10 @@
 // Field
 
 .decl FieldInfo(field:Field, declaringType:Class, simplename:symbol, type:Class)
-.input FieldInfo(IO="file", filename="Field.facts", delimiter="\t")
+.input FieldInfo(IO=file, filename="Field.facts", delimiter="\t")
 
 .decl FieldModifier(modifier:symbol, field:Field)
-.input FieldModifier(filename="Field-Modifier.facts")
+.input FieldModifier(IO=file, filename="Field-Modifier.facts", delimiter="\t")
 
 .decl LoadInstanceField(insn:Insn, index:number, var:Var, base:Var, field:Field, inMethod:Method)
 .input LoadInstanceField
@@ -90,13 +92,13 @@
 
 // others
 .decl VarType(var:Var, class:Class)
-.input VarType(IO="file", filename="Var-Type.facts", delimiter="\t")
+.input VarType(IO=file, filename="Var-Type.facts", delimiter="\t")
 
 .decl AssignLocal(insn:Insn, index:number, from:Var, to:Var, inMethod: Method)
 .input AssignLocal
 
 .decl AssignCast(insn:Insn, index:number, from:Var, to:Var, type:Class, inMethod:Method)
-.input AssignCast(filename="AssignCast.facts")
+.input AssignCast(IO=file, filename="AssignCast.facts", delimiter="\t")
 
 .decl AssignHeapAllocation(insn:Insn, index:number, heap:Heap, var:Var, inMethod:Method, linenumber:number)
 .input AssignHeapAllocation
