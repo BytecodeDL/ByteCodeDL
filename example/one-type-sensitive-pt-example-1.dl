@@ -1,10 +1,10 @@
 #define MAXSTEP 8
 #include "../logic/one-type-sensitive-pt.dl"
 
-.init typeDemo1 = OneTypeSensitivePT
+.init typeDemo1 = OneTypeSensitivePT<HContext, Context>
 typeDemo1.Reachable("<com.bytecodedl.benchmark.demo.ContextSensitiveDemo1: void main(java.lang.String[])>", "initCtx", 0).
 .output typeDemo1.VarPointsTo
 
-.init typeDemo2 = OneTypeSensitivePT
+.init typeDemo2 = OneTypeSensitivePT<HContext, Context>
 typeDemo2.Reachable("<com.bytecodedl.benchmark.demo.ContextSensitiveDemo2: void main(java.lang.String[])>", "initCtx", 0).
 .output typeDemo2.VarPointsTo
