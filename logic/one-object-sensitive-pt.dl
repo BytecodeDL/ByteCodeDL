@@ -1,119 +1,17 @@
 #pragma once
-#include "utils.dl"
+#include "abstract-context-sensitive-pt.dl"
 
-.comp OneObjectSensitivePT{
-    .decl VarPointsTo(heap:Heap, hctx:Context, var:Var, vCtx:Context)
-    .decl InstanceFieldPointsTo(heap:Heap, hctx:Context, baseHeap:Heap, bhCtx:Context, field:Field)
-    .decl StaticFieldPointsTo(heap:Heap, hctx:Context, field:Field)
-    .decl ArrayIndexPointsTo(heap:Heap, hctx:Context, baseHeap:Heap, bhCtx:Context)
-    .decl Reachable(method:Method, ctx:Context, n:number)
-    .decl CallGraph(insn:Insn, caller:Method, callerCtx:Context, callee:Method, calleeCtx:Context)
+.type HContext = Heap
+.type Context = Heap
 
-    // new
-    VarPointsTo(heap, ctx, var, ctx) :-
-        Reachable(method, ctx, _),
-        AssignHeapAllocation(_, _, heap, var, method, _).
-
-    // assign
-    VarPointsTo(heap, hctx, to, ctx) :-
-        Reachable(method, ctx, _),
-        VarPointsTo(heap, hctx, from, ctx),
-        AssignLocal(_, _, from, to, method).
-
-    // cast
-    VarPointsTo(heap, hctx, to, ctx) :-
-        Reachable(method, ctx, _),
-        AssignCast(_, _, from, to, _, method),
-        VarPointsTo(heap, hctx, from, ctx).
-
-    // load field
-    VarPointsTo(heap, hctx, to, ctx) :-
-        Reachable(method, ctx, _),
-        LoadInstanceField(_, _, to, base, field, method),
-        VarPointsTo(baseHeap, bhCtx, base, ctx),
-        InstanceFieldPointsTo(heap, hctx, baseHeap, bhCtx, field).
-
-    // store field
-    InstanceFieldPointsTo(heap, hctx, baseHeap, bhCtx, field) :-
-        Reachable(method, ctx, _),
-        StoreInstanceField(_, _, from, base, field, method),
-        VarPointsTo(heap, hctx, from, ctx),
-        VarPointsTo(baseHeap, bhCtx, base, ctx).
-
-    // load staic field
-    VarPointsTo(heap, hctx, to, ctx) :-
-        Reachable(method, ctx, _),
-        LoadStaticField(_, _, to, field, method),
-        StaticFieldPointsTo(heap, hctx, field).
-
-    // store static field
-    StaticFieldPointsTo(heap, hctx, field) :-
-        Reachable(method, ctx, _),
-        StoreStaticField(_, _, from, field, method),
-        VarPointsTo(heap, hctx, from, ctx).
-
-    // load from array
-    VarPointsTo(heap, hctx, to, ctx) :-
-        Reachable(method, ctx, _),
-        LoadArrayIndex(_, _, to, base, method),
-        VarPointsTo(baseHeap, bhCtx, base, ctx),
-        ArrayIndexPointsTo(heap, hctx, baseHeap, bhCtx).
-
-    // store into array
-    ArrayIndexPointsTo(heap, hctx, baseHeap, bhCtx) :-
-        Reachable(method, ctx, _),
-        StoreArrayIndex(_, _, from, base, method),
-        VarPointsTo(heap, hctx, from, ctx),
-        VarPointsTo(baseHeap, bhCtx, base, ctx).
-
-    Reachable(callee, calleeCtx, n+1),
-    CallGraph(insn, caller, callerCtx, callee, calleeCtx) :-
-        Reachable(caller, callerCtx, n),
-        n < MAXSTEP,
-        SpecialMethodInvocation(insn, _, callee, base, caller),
-        VarPointsTo(baseHeap, _, base, callerCtx),
-        calleeCtx = baseHeap.
-
-    Reachable(callee, calleeCtx, n+1),
-    CallGraph(insn, caller, callerCtx, callee, calleeCtx) :-
-        Reachable(caller, callerCtx, n),
-        n < MAXSTEP,
-        StaticMethodInvocation(insn, _, callee, caller),
-        calleeCtx = insn. // maybe have bug
-
-    Reachable(callee, calleeCtx, n+1),
-    CallGraph(insn, caller, callerCtx, callee, calleeCtx) :-
-        Reachable(caller, callerCtx, n),
-        n < MAXSTEP,
-        VirtualMethodInvocation(insn, _, method, base, caller),
-        VarPointsTo(baseHeap, _, base, callerCtx),
-        NormalHeap(baseHeap, class),
-        MethodInfo(method, simplename, _, _, _, descriptor, _),
-        Dispatch(simplename, descriptor, class, callee),
-        calleeCtx = baseHeap.
-
-    // param
-    VarPointsTo(heap, hctx, param, calleeCtx) :-
-        CallGraph(insn, _, callerCtx, callee, calleeCtx),
-        ActualParam(n, insn, arg),
-        FormalParam(n, callee, param),
-        VarPointsTo(heap, hctx, arg, callerCtx),
-        NormalHeap(heap, _).
-
-    // return
-    VarPointsTo(heap, hctx, return, callerCtx) :-
-        CallGraph(insn, _, callerCtx, callee, calleeCtx),
-        Return(_, _, var, callee),
-        AssignReturnValue(insn, return),
-        VarPointsTo(heap, hctx, var, calleeCtx).
-
-    // this
-    VarPointsTo(heap, hctx, this, calleeCtx) :-
-        CallGraph(insn, _, callerCtx, callee, calleeCtx),
+.comp OneObjectSensitivePT<HContext, Context> : AbstractContextSensitivePT<HContext, Context>{
+    .override SelectInvocationContext
+    SelectInvocationContext(callerCtx, insn, baseHeap, hctx, calleeCtx) :-
+        Reachable(caller, callerCtx, _),
         (
-            VirtualMethodInvocation(insn, _, _, base, _);
-            SpecialMethodInvocation(insn, _, _, base, _)
+            SpecialMethodInvocation(insn, _, _, base, caller);
+            VirtualMethodInvocation(insn, _, _, base, caller)
         ),
-        ThisVar(callee, this),
-        VarPointsTo(heap, hctx, base, callerCtx).
+        VarPointsTo(baseHeap, hctx, base, callerCtx),
+        calleeCtx = baseHeap.
 }
