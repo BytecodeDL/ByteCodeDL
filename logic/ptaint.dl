@@ -1,8 +1,7 @@
 #pragma once
 #include "pt-noctx.dl"
 
-.comp PTaint{
-    .init cipt = ContextInsensitivePt
+.comp PTaint : ContextInsensitivePt{
 
     .decl TaintHeap(insn:Insn, heap:Heap)
     .decl SourceMethod(method:Method)
@@ -17,41 +16,41 @@
     
     
     // taint arg to param
-    cipt.VarPointsTo(heap, param) :- 
-        cipt.CallGraph(insn, _, callee),
+    VarPointsTo(heap, param) :-
+        CallGraph(insn, _, callee),
         ActualParam(n, insn, arg),
         FormalParam(n, callee, param),
-        cipt.VarPointsTo(heap, arg),
+        VarPointsTo(heap, arg),
         TaintHeap(_, heap),
         !SanitizeMethod(callee).
     
     
     TaintHeap(insn, heap),
-    cipt.VarPointsTo(heap, to) :-
+    VarPointsTo(heap, to) :-
         SourceMethod(callee),
-        cipt.CallGraph(insn, _, callee),
+        CallGraph(insn, _, callee),
         AssignReturnValue(insn, to),
         heap = cat("NewTainted::", insn).
 
     IsTaintedFrom(insn, base, ret) :-
-        cipt.CallGraph(insn, _, callee),
+        CallGraph(insn, _, callee),
         BaseToRetTransfer(callee),
         VirtualMethodInvocation(insn, _, _, base, _),
         AssignReturnValue(insn, ret).
     
     IsTaintedFrom(insn, arg, ret) :-
-        cipt.CallGraph(insn, _, callee),
+        CallGraph(insn, _, callee),
         ArgToRetTransfer(callee, n),
         ActualParam(n, insn, arg),
         AssignReturnValue(insn, ret).
 
     TaintHeap(insn, newHeap),
     TransferTaint(heap, newHeap),
-    cipt.VarPointsTo(newHeap, var) :- 
+    VarPointsTo(newHeap, var) :-
         IsTaintedFrom(insn, from, to),
-        cipt.VarPointsTo(heap, from),
+        VarPointsTo(heap, from),
         TaintHeap(_, heap),
         newHeap = cat("TransferTaint::", insn),
-        cipt.VarPointsTo(oldHeap, to),
+        VarPointsTo(oldHeap, to),
         AssignHeapAllocation(_, _, oldHeap, var, _, _).
 }
