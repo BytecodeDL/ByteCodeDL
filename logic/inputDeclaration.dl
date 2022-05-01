@@ -6,6 +6,7 @@
 .type Field <: symbol
 .type Method <: symbol
 .type Class <: symbol
+.type Context = symbol
 
 // load data from facts
 // class
