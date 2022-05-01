@@ -1,0 +1,10 @@
+#define MAXSTEP 8
+#include "../logic/one-object-sensitive-pt.dl"
+
+.init objectDemo1 = OneObjectSensitivePT
+objectDemo1.Reachable("<com.bytecodedl.benchmark.demo.ContextSensitiveDemo1: void main(java.lang.String[])>", "initCtx", 0).
+.output objectDemo1.VarPointsTo
+
+.init objectDemo2 = OneObjectSensitivePT
+objectDemo2.Reachable("<com.bytecodedl.benchmark.demo.ContextSensitiveDemo2: void main(java.lang.String[])>", "initCtx", 0).
+.output objectDemo2.VarPointsTo
