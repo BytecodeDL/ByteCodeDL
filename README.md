@@ -37,9 +37,12 @@ you can use the docker we builded like docker-compose.yml
   - [x] 一阶上下文对象敏感指针分析
   - [x] 一阶上下文类型敏感指针分析
   - [ ] 可选择上下文敏感指针分析
-- [ ] 污点分析
+- [x] 污点分析
   - [x] 上下文无关ptaint
-  - [ ] 上下文敏感ptaint
+  - [x] 上下文敏感ptaint
+- [ ] 输出sarif
+- [ ] 实现JackEE
+- [ ] 性能优化
 
 ## Usage
 
