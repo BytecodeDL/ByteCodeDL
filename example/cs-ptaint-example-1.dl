@@ -1,0 +1,39 @@
+#define MAXSTEP 8
+//#include "../logic/one-callsite-sensitive-pt.dl"
+#include "../logic/cs-ptaint.dl"
+#include "../logic/one-object-sensitive-pt.dl"
+
+//.comp MyCallsitePtaint : CSPTaint<HContext, Context>, OneCallsiteSensitivePT{
+//}
+//.init csptaint = MyCallsitePtaint
+.comp MyObjectPtaint : CSPTaint<HContext, Context>, OneObjectSensitivePT{
+}
+
+
+.init csptaint = MyObjectPtaint
+
+
+csptaint.Reachable("<com.bytecodedl.benchmark.demo.TaintDemo3: void main(java.lang.String[])>", "initCtx", 0).
+
+csptaint.SourceMethod("<com.bytecodedl.benchmark.demo.TaintDemo3: java.lang.String Source()>").
+csptaint.SinkMethod("<com.bytecodedl.benchmark.demo.TaintDemo3: void Sink(java.lang.String)>", 0).
+
+csptaint.BaseToRetTransfer("<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>").
+csptaint.BaseToRetTransfer("<java.lang.StringBuilder: java.lang.String toString()>").
+
+csptaint.ArgToRetTransfer("<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>", 0).
+
+csptaint.SanitizeMethod("<com.bytecodedl.benchmark.demo.TaintDemo3: java.lang.String Sanitize(java.lang.String)>").
+
+
+.decl TaintVar(var:Var, vCtx:Context)
+
+TaintVar(var, vCtx) :-
+    csptaint.VarPointsTo(heap, _, var, vCtx),
+    csptaint.TaintHeap(_, heap).
+
+.output TaintVar
+
+.output csptaint.TaintHeap
+.output csptaint.TransferTaint
+.output csptaint.VarPointsTo

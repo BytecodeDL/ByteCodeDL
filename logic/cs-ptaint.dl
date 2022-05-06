@@ -1,0 +1,64 @@
+#pragma once
+#include "utils.dl"
+#include "abstract-context-sensitive-pt.dl"
+
+.comp CSPTaint<HContext, Context>{
+    //.init cspt = AbstractContextSensitivePT
+    //.init cspt = CSPT
+
+    .decl TaintHeap(insn:Insn, heap:Heap)
+    .decl SourceMethod(method:Method)
+    .decl SinkMethod(method:Method, n:number)
+
+    .decl SanitizeMethod(method:Method)
+
+    .decl BaseToRetTransfer(method:Method)
+    .decl ArgToRetTransfer(method:Method, n:number)
+    .decl IsTaintedFrom(insn:Insn, from:Var, fromCtx:Context, to:Var, toCtx:Context)
+    .decl TransferTaint(heap:Heap, newHeap:Heap)
+
+
+    // taint arg to param
+    VarPointsTo(heap, hctx, param, calleeCtx) :-
+        CallGraph(insn, _, callerCtx, callee, calleeCtx),
+        ActualParam(n, insn, arg),
+        FormalParam(n, callee, param),
+        VarPointsTo(heap, hctx, arg, callerCtx),
+        TaintHeap(_, heap), // sensitive?
+        !SanitizeMethod(callee).
+
+
+    TaintHeap(insn, heap),
+    VarPointsTo(heap, hctx, to, callerCtx):-
+        SourceMethod(callee),
+        CallGraph(insn, _, callerCtx, callee, _),
+        AssignReturnValue(insn, to),
+        heap = cat("NewTainted::", insn),
+        hctx = "Mock::".
+
+    IsTaintedFrom(insn, base, callerCtx, ret, callerCtx) :-
+        CallGraph(insn, _, callerCtx, callee, _),
+        BaseToRetTransfer(callee),
+        (
+            VirtualMethodInvocation(insn, _, _, base, _);
+            SpecialMethodInvocation(insn, _, _, base, _)
+        ),
+        AssignReturnValue(insn, ret).
+
+    IsTaintedFrom(insn, arg, callerCtx, ret, callerCtx) :-
+        CallGraph(insn, _, callerCtx, callee, _),
+        ArgToRetTransfer(callee, n),
+        ActualParam(n, insn, arg),
+        AssignReturnValue(insn, ret).
+
+    TaintHeap(insn, newHeap),
+    TransferTaint(heap, newHeap),
+    VarPointsTo(heap, hctx, var, vCtx) :-
+        IsTaintedFrom(insn, from, fromCtx, to, toCtx),
+        VarPointsTo(heap, hctx, from, fromCtx),
+        TaintHeap(_, heap),
+        newHeap = cat("TransferTaint::", insn),
+        VarPointsTo(oldHeap, oldHCtx, to, toCtx),
+        VarPointsTo(oldHeap, oldHCtx, var, vCtx),
+        AssignHeapAllocation(_, _, oldHeap, var, _, _).
+}
