@@ -1,10 +1,10 @@
 #define MAXSTEP 8
 #include "../logic/one-callsite-sensitive-pt.dl"
 
-.init callsitecsDemo1 = OneCallsiteSensitivePT<HContext, Context>
+.init callsitecsDemo1 = OneCallsiteSensitivePT
 callsitecsDemo1.Reachable("<com.bytecodedl.benchmark.demo.ContextSensitiveDemo1: void main(java.lang.String[])>", "initCtx", 0).
 .output callsitecsDemo1.VarPointsTo
 
-.init callsitecsDemo2 = OneCallsiteSensitivePT<HContext, Context>
+.init callsitecsDemo2 = OneCallsiteSensitivePT
 callsitecsDemo2.Reachable("<com.bytecodedl.benchmark.demo.ContextSensitiveDemo2: void main(java.lang.String[])>", "initCtx", 0).
 .output callsitecsDemo2.VarPointsTo

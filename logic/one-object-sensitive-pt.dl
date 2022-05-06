@@ -4,7 +4,7 @@
 .type HContext = Heap
 .type Context = Heap
 
-.comp OneObjectSensitivePT<HContext, Context> : AbstractContextSensitivePT<HContext, Context>{
+.comp OneObjectSensitivePT: AbstractContextSensitivePT<HContext, Context>{
     .override SelectInvocationContext
     SelectInvocationContext(callerCtx, insn, baseHeap, hctx, calleeCtx) :-
         Reachable(caller, callerCtx, _),

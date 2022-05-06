@@ -4,7 +4,7 @@
 .type HContext = Class
 .type Context = Class
 
-.comp OneTypeSensitivePT<HContext, Context> : AbstractContextSensitivePT<HContext, Context>{
+.comp OneTypeSensitivePT: AbstractContextSensitivePT<HContext, Context>{
     .override SelectInvocationContext
     SelectInvocationContext(callerCtx, insn, baseHeap, hctx, calleeCtx) :-
         Reachable(caller, callerCtx, _),
