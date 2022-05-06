@@ -35,7 +35,10 @@
     IsTaintedFrom(insn, base, ret) :-
         CallGraph(insn, _, callee),
         BaseToRetTransfer(callee),
-        VirtualMethodInvocation(insn, _, _, base, _),
+        (
+            VirtualMethodInvocation(insn, _, _, base, _);
+            SpecialMethodInvocation(insn, _, _, base, _)
+        ),
         AssignReturnValue(insn, ret).
     
     IsTaintedFrom(insn, arg, ret) :-
