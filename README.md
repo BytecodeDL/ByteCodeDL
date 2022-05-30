@@ -48,6 +48,16 @@ you can use the docker we builded like docker-compose.yml
 
 见docs文件夹
 
+## Support
+
+在使用中遇到什么问题，可以通过
+
+- email: help@bytecodedl.com
+- github: issue/discussion
+- telegram: [bytecodedl](https://t.me/bytecodedl)
+
+三种途径向我们反馈
+
 ## Plugin
 
 - IDEA
