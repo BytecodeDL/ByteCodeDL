@@ -14,7 +14,7 @@
 SinkMethod(method) :-
     SinkDesc(simplename, class),
     SubEqClass(subeqclass, class),
-    !ClassModifier("abstract", subeqclass),
+    !MethodModifier("abstract", method),
     MethodInfo(method, simplename, _, subeqclass, _, _, _).
 
 EntryMethod(method),
