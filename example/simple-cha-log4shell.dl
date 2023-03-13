@@ -1,0 +1,19 @@
+#define MAXSTEP 33
+
+#include "../logic/simple-cha.dl"
+
+
+SinkDesc("lookup", "javax.naming.Context").
+
+// init entrypoint 
+EntryPoint(simplename, descriptor, class) :-
+    MethodInfo(_, simplename, _, class, _, descriptor, _),
+    simplename = "error",
+    class = "org.apache.logging.log4j.spi.AbstractLogger",
+    descriptor = "(Ljava/lang/String;)V".
+
+
+.output EntryPoint
+.output EntryMethod
+.output SinkMethod
+.output SimpleCallGraph

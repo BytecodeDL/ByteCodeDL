@@ -1,0 +1,105 @@
+#pragma once
+#include "utils.dl"
+
+.decl EntryPoint(simplename:symbol, descriptor:symbol, class:Class)
+.decl Reachable(method:Method, step:number)
+.decl SinkDesc(simplename:symbol, class:Class)
+.decl SinkMethod(method:Method)
+.decl EntryMethod(method:Method)
+.decl BanCaller(method:Method)
+
+BanCaller(method) :-
+    MethodInfo(method, simplename, _, class, _, _, _),
+    contains("java.util", class).
+
+.output BanCaller
+
+
+.decl CallGraph(insn:Insn, caller:Method, callee:Method)
+.decl SimpleCallGraph(insn:Insn, caller:Method, callee:Method)
+.decl ChaGraph(caller:Method, implementation:Method, callee:Method)
+
+SinkMethod(method) :-
+    SinkDesc(simplename, class),
+    SubEqClass(subeqclass, class),
+    !MethodModifier("abstract", method),
+    MethodInfo(method, simplename, _, subeqclass, _, _, _).
+
+EntryMethod(method),
+Reachable(method, 0) :- 
+    EntryPoint(simplename, descriptor, class),
+    Dispatch(simplename, descriptor, class, method).
+
+Reachable(callee, n+1),
+SimpleCallGraph(insn, caller, callee),
+CallGraph(insn, caller, callee) :-
+    Reachable(caller, n),
+    !BanCaller(caller),
+    n < MAXSTEP,
+    SpecialMethodInvocation(insn, _, callee, _, caller).
+
+Reachable(callee, n+1),
+SimpleCallGraph(insn, caller, callee),
+CallGraph(insn, caller, callee) :-
+    Reachable(caller, n),
+    !BanCaller(caller),
+    n < MAXSTEP,
+    StaticMethodInvocation(insn, _, callee, caller).
+
+Reachable(method, n+1),
+Reachable(callee, n+1),
+SimpleCallGraph(insn, caller, method),
+CallGraph(insn, caller, callee) :-
+    Reachable(caller, n),
+    !BanCaller(caller),
+    n < MAXSTEP,
+    VirtualMethodInvocation(insn, _, method, receiver, caller),
+    MethodInfo(method, simplename, _, _, _, descriptor, _),
+    VarType(receiver, class),
+    SubEqClass(subeqclass, class),
+    !ClassModifier("abstract", subeqclass),
+    Dispatch(simplename, descriptor, subeqclass, callee).
+
+Reachable(callee, n+1),
+SimpleCallGraph(insn, caller, callee),
+CallGraph(insn, caller, callee) :- 
+    Reachable(caller, n),
+    !BanCaller(caller),
+    n < MAXSTEP,
+    StaticMethodInvocation(insn, _, method, caller),
+    MethodInfo(method, "doPrivileged", _, "java.security.AccessController", _, _, _),
+    ActualParam(0, insn, param),
+    VarType(param, class),
+    MethodInfo(callee, "run", _, class, _, _, 0).
+
+ChaGraph(caller, implementation, callee) :-
+    Reachable(caller, _),
+    MethodInfo(caller, simplename, _, class, _, descriptor, _),
+    SubClass(subclass, class),
+    Dispatch(simplename, descriptor, subclass, implementation),
+    caller != implementation,
+    SimpleCallGraph(_, implementation, callee).
+
+.output ChaGraph
+
+.decl CallNode(node:Method, label:symbol)
+.output CallNode
+
+CallNode(node, "method") :-
+    !EntryMethod(node),
+    !SinkMethod(node),
+    Reachable(node, _).
+
+CallNode(node, "sink") :-
+    Reachable(node, _),
+    SinkMethod(node).
+
+CallNode(node, "entry") :-
+    Reachable(node, _),
+    EntryMethod(node).
+
+.decl CallEdge(caller:Method, callee:Method)
+.output CallEdge
+
+CallEdge(caller, callee) :-
+    SimpleCallGraph(_, caller, callee).
