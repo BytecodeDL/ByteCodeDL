@@ -30,6 +30,7 @@ you can use the docker we builded like docker-compose.yml
 - [x] 搜索功能
 - [x] 调用图分析
   - [x] CHA
+  - [x] SIMPLE-CHA 
   - [x] RTA
 - [ ] 指针分析
   - [x] 上下文无关指针分析
