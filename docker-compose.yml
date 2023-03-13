@@ -14,5 +14,10 @@ services:
       - "0.0.0.0:7687:7687"
     environment:
       - NEO4J_AUTH=neo4j/bytecodedl
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4JLABS_PLUGINS=["apoc"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
     volumes:
         - ./:/bytecodedl
