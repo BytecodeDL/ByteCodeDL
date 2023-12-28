@@ -7,7 +7,7 @@ services:
     volumes:
         - ./:/bytecodedl
   neo:
-    image: neo4j-server:5.12.0-bytecodedl-pathfinder-1.0.0 
+    image: wuxxxxx/neo4j-server:5.12.0-bytecodedl-pathfinder-1.0.0 
     restart: always
     ports:
       - "0.0.0.0:7474:7474"
