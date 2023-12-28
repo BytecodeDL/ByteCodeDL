@@ -7,17 +7,10 @@ services:
     volumes:
         - ./:/bytecodedl
   neo:
-    image: neo4j:4.4.4-community
+    image: neo4j-server:5.12.0-bytecodedl-pathfinder-1.0.0 
     restart: always
     ports:
       - "0.0.0.0:7474:7474"
       - "0.0.0.0:7687:7687"
-    environment:
-      - NEO4J_AUTH=neo4j/bytecodedl
-      - NEO4J_apoc_export_file_enabled=true
-      - NEO4J_apoc_import_file_enabled=true
-      - NEO4J_apoc_import_file_use__neo4j__config=true
-      - NEO4JLABS_PLUGINS=["apoc"]
-      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
     volumes:
         - ./:/bytecodedl

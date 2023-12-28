@@ -123,10 +123,10 @@ CallNode(node, "entry") :-
     RefinedReachable(node),
     EntryMethod(node).
 
-.decl CallEdge(caller:Method, callee:Method)
+.decl CallEdge(caller:Method, insn:Insn, callee:Method)
 .output CallEdge
 
-CallEdge(caller, callee) :-
+CallEdge(caller, insn, callee) :-
     RefinedReachable(caller),
     RefinedReachable(callee),
-    CallGraph(_, caller, callee).
+    CallGraph(insn, caller, callee).
