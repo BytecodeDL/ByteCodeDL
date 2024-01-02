@@ -1,0 +1,18 @@
+#define MAXSTEP 33
+#define CHAO 1
+
+#include "../logic/cha.dl"
+
+BanCaller(method) :-
+    MethodInfo(method, _, _, class, _, _, _),
+    !contains("org.apache.logging.log4j", class).
+
+
+SinkDesc("lookup", "javax.naming.Context").
+
+// init entrypoint 
+EntryPoint(simplename, descriptor, class) :-
+    MethodInfo(_, simplename, _, class, _, descriptor, _),
+    simplename = "error",
+    class = "org.apache.logging.log4j.spi.AbstractLogger",
+    descriptor = "(Ljava/lang/String;)V".
