@@ -1,7 +1,7 @@
 version: '2.4'
 services:
   bytecodedl:
-    image: wuxxxxx/bytecodedl:1.0.1
+    image: wuxxxxx/bytecodedl:1.0.2
     restart: always
     command: sleep infinity
     volumes:
